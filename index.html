@@ -1,0 +1,2490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.76">
+    <title>WLink - Modern Email Client</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4285f4;
+            --secondary: #34a853;
+            --danger: #ea4335;
+            --warning: #fbbc05;
+            --light: #f8f9fa;
+            --dark: #202124;
+            --gray: #5f6368;
+            --light-gray: #e8eaed;
+            --border: #dadce0;
+            --background: #ffffff;
+            --text: #202124;
+        }
+
+        [data-theme="dark"] {
+            --primary: #8ab4f8;
+            --secondary: #81c995;
+            --danger: #f28b82;
+            --warning: #fdd663;
+            --light: #202124;
+            --dark: #f8f9fa;
+            --gray: #9aa0a6;
+            --light-gray: #3c4043;
+            --border: #5f6368;
+            --background: #202124;
+            --text: #e8eaed;
+        }
+
+        [data-theme="amoled"] {
+            --primary: #8ab4f8;
+            --secondary: #81c995;
+            --danger: #f28b82;
+            --warning: #fdd663;
+            --light: #000000;
+            --dark: #ffffff;
+            --gray: #9aa0a6;
+            --light-gray: #1e1e1e;
+            --border: #333333;
+            --background: #000000;
+            --text: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            transition: all 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        .app {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .header {
+            height: 64px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            background-color: var(--background);
+            border-bottom: 1px solid var(--border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--primary);
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo span {
+            color: var(--danger);
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 720px;
+            margin: 0 16px;
+            position: relative;
+        }
+
+        .search-bar .form-control {
+            height: 48px;
+            border-radius: 24px;
+            padding-left: 48px;
+            background-color: var(--light-gray);
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+
+        .search-bar .form-control:focus {
+            background-color: var(--background);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-toggle, .menu-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 8px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--gray);
+        }
+
+        .theme-toggle:hover, .menu-toggle:hover {
+            background-color: var(--light-gray);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            margin-left: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            filter: grayscale(100%);
+            object-fit: cover;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        .signup-container, .login-container, .dob-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            background-color: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar {
+            width: 280px;
+            height: 100%;
+            background-color: var(--background);
+            border-right: 1px solid var(--border);
+            padding-top: 80px;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 90;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-280px);
+        }
+
+        .compose-btn {
+            margin: 16px;
+            height: 48px;
+            border-radius: 24px;
+            font-size: 16px;
+            padding: 0 24px 0 16px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .compose-btn:hover {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .compose-icon {
+            margin-right: 12px;
+            font-size: 20px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 8px 0;
+        }
+
+        .sidebar-menu li {
+            padding: 0 8px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 0 25px 25px 0;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: var(--light-gray);
+        }
+
+        .sidebar-menu a.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .sidebar-menu-icon {
+            margin-right: 16px;
+            width: 20px;
+            text-align: center;
+            color: var(--gray);
+        }
+
+        .sidebar-menu a.active .sidebar-menu-icon {
+            color: var(--primary);
+        }
+
+        .sidebar-label {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 80px 0 0 280px;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .main-content.expanded {
+            padding-left: 0;
+        }
+
+        .dashboard-container, .email-list-container, .email-view-container, .profile-container {
+            padding: 24px;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+
+        .email-list-container {
+            position: relative;
+        }
+
+        .email-list-toolbar {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background-color: var(--background);
+            z-index: 10;
+        }
+
+        .email-list-toolbar h2 {
+            margin-left: 8px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .email-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .email-item:hover {
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            background-color: var(--light-gray);
+            transform: translateX(2px);
+        }
+
+        .email-item.unread {
+            background-color: rgba(66, 133, 244, 0.08);
+        }
+
+        .email-checkbox {
+            margin-right: 16px;
+        }
+
+        .email-star {
+            margin-right: 16px;
+            color: var(--gray);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .email-star.fas {
+            color: #fbbc05;
+        }
+
+        .email-sender {
+            width: 200px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+        }
+
+        .sender-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .email-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .email-subject {
+            font-weight: 500;
+            margin-right: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .email-preview {
+            color: var(--gray);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .email-time {
+            width: 80px;
+            text-align: right;
+            font-size: 12px;
+            color: var(--gray);
+            flex-shrink: 0;
+        }
+
+        .email-list.compact-view .email-preview,
+        .email-list.compact-view .email-time {
+            display: none;
+        }
+
+        .email-list.compact-view .email-item {
+            padding: 8px 16px;
+        }
+
+        .email-view-container {
+            display: none;
+        }
+
+        .email-view-container.active {
+            display: block;
+        }
+
+        .email-view-subject {
+            font-size: 22px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .email-view-sender {
+            margin-bottom: 16px;
+        }
+
+        .sender-info, .recipient-info {
+            font-size: 14px;
+        }
+
+        .email-view-time {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .email-view-body {
+            line-height: 1.6;
+            margin-top: 24px;
+        }
+
+        .email-attachments {
+            margin-top: 20px;
+        }
+
+        .attachment-link {
+            display: block;
+            margin-top: 5px;
+            color: var(--primary);
+            transition: color 0.2s ease;
+        }
+
+        .attachment-link:hover {
+            color: var(--secondary);
+        }
+
+        .compose-container {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            right: 16px;
+            width: 600px;
+            max-height: 80vh;
+            background-color: var(--background);
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 0 16px rgba(0,0,0,0.2);
+            z-index: 1000;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .compose-container.active {
+            display: flex;
+        }
+
+        .compose-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background-color: var(--light-gray);
+            border-radius: 8px 8px 0 0;
+            cursor: move;
+        }
+
+        .compose-title {
+            font-weight: 500;
+        }
+
+        .compose-actions .btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 8px;
+            color: var(--gray);
+            transition: background-color 0.2s ease;
+        }
+
+        .compose-actions .btn:hover {
+            background-color: var(--gray);
+            color: var(--light);
+        }
+
+        .compose-form {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .compose-fields {
+            padding: 16px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .compose-field {
+            margin-bottom: 16px;
+        }
+
+        .compose-field .form-control {
+            border: none;
+            border-bottom: 1px solid var(--border);
+            padding: 8px 0;
+            font-size: 14px;
+            background: none;
+            color: var(--text);
+            transition: border-color 0.2s ease;
+        }
+
+        .compose-field .form-control:focus {
+            border-bottom-color: var(--primary);
+        }
+
+        #composeBody {
+            min-height: 200px;
+            border: 1px solid var(--border);
+            padding: 8px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .attachment-area {
+            margin-top: 10px;
+        }
+
+        .attachment {
+            display: inline-block;
+            margin-right: 10px;
+            background-color: var(--light-gray);
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.2s ease;
+        }
+
+        .attachment:hover {
+            background-color: var(--gray);
+            color: var(--light);
+        }
+
+        .compose-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .voice-compose-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 18px;
+            transition: transform 0.2s ease;
+        }
+
+        .voice-compose-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .smart-features {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .smart-feature-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 20px;
+            margin-top: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .smart-feature-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .smart-feature-btn.voice {
+            background-color: var(--secondary);
+        }
+
+        .smart-feature-btn.summarize {
+            background-color: var(--warning);
+        }
+
+        .smart-feature-popup {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            background-color: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 101;
+            display: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .smart-feature-popup.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .smart-feature-popup h4 {
+            margin-bottom: 12px;
+            color: var(--primary);
+        }
+
+        .profile-picture {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .profile-picture:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-actions {
+            display: none;
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 5px;
+            z-index: 102;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+        }
+
+        .profile-container {
+            padding: 24px;
+        }
+
+        .profile-toolbar {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background-color: var(--background);
+            z-index: 10;
+        }
+
+        .profile-toolbar h2 {
+            margin-left: 8px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .profile-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+        }
+
+        .profile-details p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        #contactsList div {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        #contactsList input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-280px);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                padding-left: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .compose-container {
+                width: 100%;
+                right: 0;
+                max-height: 90vh;
+            }
+            .email-sender {
+                width: 100px;
+            }
+            .email-time {
+                width: 60px;
+            }
+            .email-item {
+                padding: 8px 12px;
+            }
+            .voice-compose-btn, .smart-feature-btn.voice {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+            .email-list {
+                max-height: calc(100vh - 120px);
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .smart-feature-popup {
+                width: 100%;
+                right: 0;
+                bottom: 0;
+                border-radius: 0;
+            }
+            .smart-feature-popup .actions button {
+                padding: 12px 24px;
+                font-size: 16px;
+            }
+            .theme-toggle, .menu-toggle {
+                width: 50px;
+                height: 50px;
+            }
+            .profile-content {
+                text-align: center;
+            }
+            .profile-details p {
+                text-align: left;
+            }
+            .container {
+                padding: 10px;
+            }
+            .button {
+                font-size: 14px;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <button class="btn menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="logo">
+                W<span>Link</span>
+            </div>
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="form-control" placeholder="Search mail" id="searchInput">
+            </div>
+            <div class="user-actions">
+                <button class="btn theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="user-avatar" id="userAvatar">U</div>
+            </div>
+        </header>
+
+        <div class="signup-container" id="signupContainer">
+            <h2>Create Your WLink Account</h2>
+            <form id="signupForm">
+                <div class="mb-3">
+                    <label for="firstName" class="form-label">First Name</label>
+                    <input type="text" class="form-control" id="firstName" required>
+                </div>
+                <div class="mb-3">
+                    <label for="lastName" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" id="lastName" required>
+                </div>
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="username" required>
+                        <span class="input-group-text">@wlink.com</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
+                <div class="mb-3">
+                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                    <input type="password" class="form-control" id="confirmPassword" required>
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="terms" required>
+                    <label class="form-check-label" for="terms">I agree to the terms and conditions</label>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Next</button>
+            </form>
+            <p class="mt-2">Already have an account? <a href="#" id="switchToLogin">Log in</a></p>
+        </div>
+
+        <div class="dob-container" id="dobContainer" style="display: none;">
+            <h2>Enter Your Date of Birth</h2>
+            <form id="dobForm">
+                <div class="mb-3">
+                    <label for="dob" class="form-label">Date of Birth</label>
+                    <input type="date" class="form-control" id="dob" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Create Account</button>
+            </form>
+        </div>
+
+        <div class="login-container" id="loginContainer" style="display: none;">
+            <h2>Log In to WLink</h2>
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label for="loginUsername" class="form-label">Username</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="loginUsername" required>
+                        <span class="input-group-text">@wlink.com</span>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="loginPassword" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Log In</button>
+            </form>
+            <p class="mt-2">Don't have an account? <a href="#" id="switchToSignup">Sign up</a></p>
+        </div>
+
+        <aside class="sidebar" id="sidebar" style="display: none;">
+            <button class="btn btn-primary compose-btn" id="composeBtn">
+                <i class="fas fa-plus compose-icon"></i>
+                Compose
+            </button>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="#" data-folder="inbox">
+                        <i class="fas fa-inbox sidebar-menu-icon"></i>
+                        Inbox
+                        <span class="badge bg-primary ms-2" id="inboxBadge"></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-folder="starred">
+                        <i class="fas fa-star sidebar-menu-icon"></i>
+                        Starred
+                        <span class="badge bg-primary ms-2" id="starredBadge"></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-folder="sent">
+                        <i class="fas fa-paper-plane sidebar-menu-icon"></i>
+                        Sent
+                        <span class="badge bg-primary ms-2" id="sentBadge"></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-folder="drafts">
+                        <i class="fas fa-file sidebar-menu-icon"></i>
+                        Drafts
+                        <span class="badge bg-primary ms-2" id="draftsBadge"></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-folder="trash">
+                        <i class="fas fa-trash sidebar-menu-icon"></i>
+                        Trash
+                        <span class="badge bg-primary ms-2" id="trashBadge"></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-folder="archive">
+                        <i class="fas fa-archive sidebar-menu-icon"></i>
+                        Archive
+                        <span class="badge bg-primary ms-2" id="archiveBadge"></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-folder="snoozed">
+                        <i class="fas fa-clock sidebar-menu-icon"></i>
+                        Snoozed
+                        <span class="badge bg-primary ms-2" id="snoozedBadge"></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-folder="scheduled">
+                        <i class="fas fa-calendar-alt sidebar-menu-icon"></i>
+                        Scheduled
+                        <span class="badge bg-primary ms-2" id="scheduledBadge"></span>
+                    </a>
+                </li>
+            </ul>
+            <div class="sidebar-label">Labels</div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="#" data-folder="work">
+                        <i class="fas fa-circle sidebar-menu-icon" style="color: #4285f4; font-size: 10px;"></i>
+                        Work
+                        <span class="badge bg-primary ms-2" id="workBadge"></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-folder="personal">
+                        <i class="fas fa-circle sidebar-menu-icon" style="color: #34a853; font-size: 10px;"></i>
+                        Personal
+                        <span class="badge bg-primary ms-2" id="personalBadge"></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-folder="finance">
+                        <i class="fas fa-circle sidebar-menu-icon" style="color: #fbbc05; font-size: 10px;"></i>
+                        Finance
+                        <span class="badge bg-primary ms-2" id="financeBadge"></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-folder="social">
+                        <i class="fas fa-circle sidebar-menu-icon" style="color: #ea4335; font-size: 10px;"></i>
+                        Social
+                        <span class="badge bg-primary ms-2" id="socialBadge"></span>
+                    </a>
+                </li>
+            </ul>
+            <ul class="sidebar-menu">
+                <li><a href="#" id="inviteLink"><i class="fas fa-user-plus sidebar-menu-icon"></i> Invite Friends</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content" id="mainContent" style="display: none;">
+            <div class="dashboard-container" id="dashboardView" style="display: none;">
+                <h2>Welcome to WLink</h2>
+                <p>Select a folder from the sidebar to view your emails.</p>
+            </div>
+
+            <div class="email-list-container" id="emailListView" style="display: none;">
+                <div class="email-list-toolbar">
+                    <button class="btn" id="backToDashboard"><i class="fas fa-arrow-left"></i></button>
+                    <h2 id="folderTitle">Inbox</h2>
+                    <button class="btn" id="refreshBtn"><i class="fas fa-sync-alt"></i></button>
+                    <button class="btn" id="archiveBtn"><i class="fas fa-archive"></i></button>
+                    <button class="btn" id="deleteBtn"><i class="fas fa-trash"></i></button>
+                    <button class="btn" id="markAsReadBtn"><i class="fas fa-envelope-open"></i></button>
+                    <div style="flex: 1;"></div>
+                    <button class="btn" id="listViewBtn"><i class="fas fa-list"></i></button>
+                </div>
+                <div class="loading" id="emailListLoading">
+                    <div class="spinner-border text-primary" role="status"></div>
+                </div>
+                <ul class="email-list list-unstyled" id="emailList"></ul>
+            </div>
+
+            <div class="email-view-container" id="emailView" style="display: none;">
+                <div class="email-view-toolbar d-flex align-items-center mb-3">
+                    <button class="btn" id="backToList"><i class="fas fa-arrow-left"></i></button>
+                    <button class="btn" id="replyBtn"><i class="fas fa-reply"></i></button>
+                    <button class="btn" id="forwardBtn"><i class="fas fa-share"></i></button>
+                    <button class="btn" id="deleteEmailBtn"><i class="fas fa-trash"></i></button>
+                    <button class="btn" id="snoozeBtn"><i class="fas fa-clock"></i></button>
+                    <div style="flex: 1;"></div>
+                    <button class="btn" id="summarizeBtn"><i class="fas fa-scroll"></i></button>
+                </div>
+                <h1 class="email-view-subject" id="emailSubject"></h1>
+                <div class="email-view-sender d-flex align-items-center flex-wrap">
+                    <div class="sender-info me-3">
+                        <strong>From:</strong> <span id="fromName"></span> (<span id="fromEmail"></span>)
+                    </div>
+                    <div class="recipient-info me-3">
+                        <strong>To:</strong> <span id="toName"></span> (<span id="toEmail"></span>)
+                    </div>
+                    <div class="email-view-time ms-auto" id="emailTime"></div>
+                </div>
+                <div class="email-view-body" id="emailBody"></div>
+                <div class="email-attachments" id="emailAttachments"></div>
+            </div>
+
+            <div class="profile-container" id="profileView" style="display: none;">
+                <div class="profile-toolbar d-flex align-items-center mb-3">
+                    <button class="btn" id="backFromProfile"><i class="fas fa-arrow-left"></i></button>
+                    <h2>Profile</h2>
+                </div>
+                <h1 class="email-view-subject">Your Profile</h1>
+                <div class="email-view-sender d-flex align-items-center">
+                    <div class="sender-avatar" id="profileAvatar"></div>
+                    <div class="sender-info">
+                        <div class="sender-name" id="profileFullName"></div>
+                        <div class="sender-email" id="profileUsername"></div>
+                    </div>
+                </div>
+                <div class="email-view-body">
+                    <p><strong>Date of Birth:</strong> <span id="profileDob"></span></p>
+                    <p><strong>Emails Sent:</strong> <span id="profileEmailsSent"></span></p>
+                    <p><strong>Emails Received:</strong> <span id="profileEmailsReceived"></span></p>
+                </div>
+            </div>
+        </main>
+
+        <div class="compose-container" id="composeContainer">
+            <div class="compose-header" id="composeHeader">
+                <div class="compose-title">New Message</div>
+                <div class="compose-actions">
+                    <button class="btn" id="minimizeCompose"><i class="fas fa-minus"></i></button>
+                    <button class="btn" id="closeCompose"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <form class="compose-form" id="composeForm">
+                <div class="compose-fields">
+                    <div class="compose-field">
+                        <input type="email" class="form-control" id="composeTo" placeholder="To" required>
+                    </div>
+                    <div class="compose-field">
+                        <input type="text" class="form-control" id="composeSubject" placeholder="Subject">
+                    </div>
+                    <div class="compose-field">
+                        <div contenteditable="true" class="form-control" id="composeBody" placeholder="Compose email"></div>
+                    </div>
+                    <div class="attachment-area" id="attachmentArea"></div>
+                </div>
+                <div class="compose-footer">
+                    <div class="compose-attachments">
+                        <button type="button" class="btn" id="attachFile"><i class="fas fa-paperclip"></i></button>
+                        <button type="button" class="btn" id="insertPhoto"><i class="fas fa-image"></i></button>
+                        <button type="button" class="btn" id="insertLink"><i class="fas fa-link"></i></button>
+                        <button type="button" class="btn btn-success voice-compose-btn" id="voiceComposeBtn"><i class="fas fa-microphone"></i></button>
+                    </div>
+                    <button type="submit" class="btn btn-primary compose-send-btn" id="sendEmail">Send</button>
+                    <button type="button" class="btn" id="scheduleSendBtn"><i class="fas fa-calendar-alt"></i></button>
+                    <button type="button" class="btn" id="snoozeComposeBtn"><i class="fas fa-clock"></i></button>
+                </div>
+            </form>
+            <input type="file" id="fileInput" multiple style="display: none;">
+        </div>
+
+        <div class="smart-features">
+            <button class="btn btn-warning smart-feature-btn summarize" id="summarizeFeatureBtn">
+                <i class="fas fa-scroll"></i>
+            </button>
+            <button class="btn btn-success smart-feature-btn voice" id="voiceFeatureBtn">
+                <i class="fas fa-microphone"></i>
+            </button>
+        </div>
+
+        <div class="smart-feature-popup" id="summarizePopup">
+            <h4>Email Summary</h4>
+            <p id="summaryText">This is a summary of the email content.</p>
+            <div class="actions d-flex justify-content-end">
+                <button class="btn btn-secondary" id="closeSummary">Close</button>
+                <button class="btn btn-primary ms-2" id="copySummary">Copy</button>
+            </div>
+        </div>
+
+        <div class="smart-feature-popup" id="voicePopup">
+            <h4>Voice to Email</h4>
+            <p id="voiceText">Press the microphone button to start speaking.</p>
+            <div class="actions d-flex justify-content-end">
+                <button class="btn btn-secondary" id="cancelVoice">Cancel</button>
+                <button class="btn btn-primary ms-2" id="sendVoice">Send as Email</button>
+            </div>
+        </div>
+
+        <div class="smart-feature-popup" id="snoozePopup">
+            <h4>Snooze Until</h4>
+            <input type="datetime-local" id="snoozeTime" class="form-control mb-3">
+            <div class="actions d-flex justify-content-end">
+                <button class="btn btn-secondary" id="cancelSnooze">Cancel</button>
+                <button class="btn btn-primary ms-2" id="applySnooze">Snooze</button>
+            </div>
+        </div>
+
+        <div class="smart-feature-popup" id="scheduleSendPopup">
+            <h4>Schedule Send</h4>
+            <input type="datetime-local" id="scheduleTime" class="form-control mb-3">
+            <div class="actions d-flex justify-content-end">
+                <button class="btn btn-secondary" id="cancelSchedule">Cancel</button>
+                <button class="btn btn-primary ms-2" id="applySchedule">Schedule</button>
+            </div>
+        </div>
+
+        <div class="smart-feature-popup" id="snoozeComposePopup">
+            <h4>Snooze Until</h4>
+            <input type="datetime-local" id="snoozeComposeTime" class="form-control mb-3">
+            <div class="actions d-flex justify-content-end">
+                <button class="btn btn-secondary" id="cancelSnoozeCompose">Cancel</button>
+                <button class="btn btn-primary ms-2" id="applySnoozeCompose">Snooze</button>
+            </div>
+        </div>
+
+        <div class="smart-feature-popup" id="invitePopup">
+            <h4>Invite Friends</h4>
+            <div id="contactsList"></div>
+            <div class="actions d-flex justify-content-end">
+                <button class="btn btn-secondary" id="cancelInvite">Cancel</button>
+                <button class="btn btn-primary ms-2" id="sendInvite">Send Invites</button>
+            </div>
+        </div>
+
+        <div class="smart-feature-popup" id="accountPopup">
+            <div class="profile-picture mb-3 position-relative" style="width: 100px; height: 100px;">
+                <div id="profileLetter" class="position-absolute top-0 start-0 d-flex align-items-center justify-content-center" style="width: 100%; height: 100%; border-radius: 50%; background-color: var(--primary); color: white; font-size: 48px; font-weight: 500;"></div>
+                <img id="profilePicture" src="" alt="Profile Picture" class="position-absolute top-0 start-0" style="width: 100%; height: 100%; border-radius: 50%; display: none; filter: grayscale(100%);">
+            </div>
+            <h4>Account Details</h4>
+            <p><strong>Full Name:</strong> <span id="accountFullName"></span></p>
+            <p><strong>Username:</strong> <span id="accountUsername"></span></p>
+            <p><strong>Date of Birth:</strong> <span id="accountDob"></span></p>
+            <p><strong>Emails Sent:</strong> <span id="emailsSent"></span></p>
+            <p><strong>Emails Received:</strong> <span id="emailsReceived"></span></p>
+            <button class="btn btn-primary mt-3" id="viewProfileBtn">View Profile</button>
+            <div class="actions d-flex justify-content-end mt-3">
+                <button class="btn btn-secondary" id="closeAccountPopup">Close</button>
+                <button class="btn btn-primary ms-2" id="logoutFromPopup">Log Out</button>
+            </div>
+        </div>
+        <input type="file" id="profilePhotoInput" accept="image/*" style="display: none;">
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <script>
+        const header = document.querySelector('.header');
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const themeToggle = document.getElementById('themeToggle');
+        const composeBtn = document.getElementById('composeBtn');
+        const composeContainer = document.getElementById('composeContainer');
+        const closeCompose = document.getElementById('closeCompose');
+        const minimizeCompose = document.getElementById('minimizeCompose');
+        const composeForm = document.getElementById('composeForm');
+        const dashboardView = document.getElementById('dashboardView');
+        const emailListView = document.getElementById('emailListView');
+        const emailView = document.getElementById('emailView');
+        const profileView = document.getElementById('profileView');
+        const backToList = document.getElementById('backToList');
+        const backToDashboard = document.getElementById('backToDashboard');
+        const folderTitle = document.getElementById('folderTitle');
+        const summarizeBtn = document.getElementById('summarizeBtn');
+        const summarizeFeatureBtn = document.getElementById('summarizeFeatureBtn');
+        const summarizePopup = document.getElementById('summarizePopup');
+        const closeSummary = document.getElementById('closeSummary');
+        const copySummary = document.getElementById('copySummary');
+        const summaryText = document.getElementById('summaryText');
+        const voiceFeatureBtn = document.getElementById('voiceFeatureBtn');
+        const voicePopup = document.getElementById('voicePopup');
+        const voiceText = document.getElementById('voiceText');
+        const cancelVoice = document.getElementById('cancelVoice');
+        const sendVoice = document.getElementById('sendVoice');
+        const emailList = document.getElementById('emailList');
+        const emailListLoading = document.getElementById('emailListLoading');
+        const searchInput = document.getElementById('searchInput');
+        const signupContainer = document.getElementById('signupContainer');
+        const dobContainer = document.getElementById('dobContainer');
+        const loginContainer = document.getElementById('loginContainer');
+        const switchToLogin = document.getElementById('switchToLogin');
+        const switchToSignup = document.getElementById('switchToSignup');
+        const userAvatar = document.getElementById('userAvatar');
+        const accountPopup = document.getElementById('accountPopup');
+        const profilePicture = document.getElementById('profilePicture');
+        const profileLetter = document.getElementById('profileLetter');
+        const fileInput = document.getElementById('fileInput');
+        const attachmentArea = document.getElementById('attachmentArea');
+        const voiceComposeBtn = document.getElementById('voiceComposeBtn');
+        const viewProfileBtn = document.getElementById('viewProfileBtn');
+        const backFromProfile = document.getElementById('backFromProfile');
+        const snoozeBtn = document.getElementById('snoozeBtn');
+        const snoozePopup = document.getElementById('snoozePopup');
+        const cancelSnooze = document.getElementById('cancelSnooze');
+        const applySnooze = document.getElementById('applySnooze');
+        const scheduleSendBtn = document.getElementById('scheduleSendBtn');
+        const scheduleSendPopup = document.getElementById('scheduleSendPopup');
+        const cancelSchedule = document.getElementById('cancelSchedule');
+        const applySchedule = document.getElementById('applySchedule');
+        const snoozeComposeBtn = document.getElementById('snoozeComposeBtn');
+        const snoozeComposePopup = document.getElementById('snoozeComposePopup');
+        const cancelSnoozeCompose = document.getElementById('cancelSnoozeCompose');
+        const applySnoozeCompose = document.getElementById('applySnoozeCompose');
+        const inviteLink = document.getElementById('inviteLink');
+        const invitePopup = document.getElementById('invitePopup');
+        const cancelInvite = document.getElementById('cancelInvite');
+        const sendInvite = document.getElementById('sendInvite');
+
+        let currentTheme = 'light';
+        let currentFolder = 'inbox';
+        let selectedEmailId = null;
+        let isListening = false;
+        let recognition = null;
+        let attachments = [];
+        let insertMode = 'file';
+        let listViewMode = 'detailed';
+        let tempUserData = {};
+
+        function getEmailsForFolder(folder) {
+            const emails = JSON.parse(localStorage.getItem(`wlink_${folder}`)) || [];
+            return emails;
+        }
+
+        function saveEmailsForFolder(folder, emails) {
+            localStorage.setItem(`wlink_${folder}`, JSON.stringify(emails));
+        }
+
+        function toggleSidebar() {
+            if (window.innerWidth > 992) {
+                sidebar.classList.toggle('hidden');
+                mainContent.classList.toggle('expanded');
+            } else {
+                sidebar.classList.toggle('open');
+            }
+        }
+
+        function showDashboard() {
+            dashboardView.style.display = 'block';
+            emailListView.style.display = 'none';
+            emailView.style.display = 'none';
+            profileView.style.display = 'none';
+            if (window.innerWidth > 992) {
+                sidebar.classList.remove('hidden');
+                mainContent.classList.remove('expanded');
+            } else {
+                sidebar.classList.remove('open');
+            }
+        }
+
+        function showEmailListForFolder(folder) {
+            currentFolder = folder;
+            emailListLoading.style.display = 'block';
+            setTimeout(() => {
+                let emails = getEmailsForFolder(folder);
+                if (folder === 'starred') {
+                    emails = [];
+                    const allFolders = ['inbox', 'sent', 'drafts', 'trash', 'archive', 'work', 'personal', 'finance', 'social', 'snoozed', 'scheduled'];
+                    allFolders.forEach(f => {
+                        const folderEmails = getEmailsForFolder(f).filter(email => email.starred);
+                        emails = emails.concat(folderEmails);
+                    });
+                }
+                renderEmailList(emails);
+                folderTitle.textContent = folder.charAt(0).toUpperCase() + folder.slice(1);
+                dashboardView.style.display = 'none';
+                emailListView.style.display = 'block';
+                emailView.style.display = 'none';
+                profileView.style.display = 'none';
+                emailListLoading.style.display = 'none';
+                updateBadges();
+            }, 500);
+        }
+
+        function renderEmailList(emails) {
+            emailList.innerHTML = '';
+            if (emails.length === 0) {
+                emailList.innerHTML = '<li class="p-3 text-muted">No emails in this folder</li>';
+                return;
+            }
+            emails.forEach(email => {
+                const li = document.createElement('li');
+                li.className = 'email-item' + (email.read ? '' : ' unread');
+                li.dataset.id = email.id;
+                let timeDisplay;
+                if (email.snoozeTime) {
+                    timeDisplay = `Snoozed until ${new Date(email.snoozeTime).toLocaleString()}`;
+                } else if (email.scheduleTime) {
+                    timeDisplay = `Scheduled for ${new Date(email.scheduleTime).toLocaleString()}`;
+                } else {
+                    timeDisplay = email.time;
+                }
+                const displayName = email.isSent ? `To: ${email.toName}` : `From: ${email.from}`;
+                const avatarText = email.isSent ? email.toName[0].toUpperCase() : email.from[0].toUpperCase();
+                const starClass = email.starred ? 'fas' : 'far';
+                li.innerHTML = `
+                    <input type="checkbox" class="email-checkbox">
+                    <i class="${starClass} fa-star email-star"></i>
+                    <div class="email-sender">
+                        <div class="sender-avatar">${avatarText}</div>
+                        ${displayName}
+                    </div>
+                    <div class="email-content">
+                        <span class="email-subject">${email.subject}</span>
+                        <span class="email-preview">${email.preview}</span>
+                    </div>
+                    <div class="email-time">${timeDisplay}</div>
+                    ${email.attachments && email.attachments.length > 0 ? '<i class="fas fa-paperclip ms-2"></i>' : ''}
+                `;
+                li.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('email-star') && !e.target.classList.contains('email-checkbox')) {
+                        openEmail(email.id);
+                    }
+                });
+                emailList.appendChild(li);
+            });
+        }
+
+        function updateBadges() {
+            const folders = ['inbox', 'starred', 'sent', 'drafts', 'trash', 'archive', 'snoozed', 'scheduled', 'work', 'personal', 'finance', 'social'];
+            folders.forEach(folder => {
+                let count;
+                if (folder === 'starred') {
+                    count = 0;
+                    const allFolders = ['inbox', 'sent', 'drafts', 'trash', 'archive', 'work', 'personal', 'finance', 'social', 'snoozed', 'scheduled'];
+                    allFolders.forEach(f => {
+                        count += getEmailsForFolder(f).filter(email => email.starred).length;
+                    });
+                } else if (folder === 'inbox') {
+                    count = getEmailsForFolder(folder).filter(email => !email.read).length;
+                } else {
+                    count = getEmailsForFolder(folder).length;
+                }
+                const badge = document.getElementById(`${folder}Badge`);
+                if (badge) {
+                    badge.textContent = count > 0 ? count : '';
+                }
+            });
+        }
+
+        function getEmailById(id) {
+            const folders = ['inbox', 'sent', 'drafts', 'trash', 'archive', 'work', 'personal', 'finance', 'social', 'snoozed', 'scheduled'];
+            for (const folder of folders) {
+                const emails = getEmailsForFolder(folder);
+                const email = emails.find(e => e.id === id);
+                if (email) return { email, folder };
+            }
+            return null;
+        }
+
+        function openEmail(id) {
+            const result = getEmailById(id);
+            if (!result) return;
+            const { email, folder } = result;
+            if (folder === 'drafts') {
+                openComposeWithDraft(email);
+            } else {
+                selectedEmailId = id;
+                email.read = true;
+                const emails = getEmailsForFolder(folder);
+                const index = emails.findIndex(e => e.id === id);
+                if (index !== -1) {
+                    emails[index].read = true;
+                    saveEmailsForFolder(folder, emails);
+                }
+                document.getElementById('emailSubject').textContent = email.subject;
+                const currentUserEmail = localStorage.getItem('current_user') + '@wlink.com';
+                const fromDisplay = email.fromEmail === currentUserEmail ? 'Me' : email.from;
+                const toDisplay = email.to === currentUserEmail ? 'Me' : email.toName;
+                document.getElementById('fromName').textContent = fromDisplay;
+                document.getElementById('fromEmail').textContent = email.fromEmail;
+                document.getElementById('toName').textContent = toDisplay;
+                document.getElementById('toEmail').textContent = email.to;
+                document.getElementById('emailTime').textContent = email.time;
+                document.getElementById('emailBody').innerHTML = email.body;
+                const attachmentsDiv = document.getElementById('emailAttachments');
+                attachmentsDiv.innerHTML = '';
+                if (email.attachments && email.attachments.length > 0) {
+                    const attachmentHeader = document.createElement('h5');
+                    attachmentHeader.textContent = 'Attachments:';
+                    attachmentsDiv.appendChild(attachmentHeader);
+                    email.attachments.forEach(attachment => {
+                        const attachmentLink = document.createElement('a');
+                        attachmentLink.href = '#';
+                        attachmentLink.textContent = attachment;
+                        attachmentLink.className = 'attachment-link';
+                        attachmentsDiv.appendChild(attachmentLink);
+                    });
+                }
+                emailListView.style.display = 'none';
+                emailView.style.display = 'block';
+                profileView.style.display = 'none';
+                emailView.classList.add('fade-in');
+                updateBadges();
+            }
+        }
+
+        function openComposeWithDraft(email) {
+            openCompose();
+            document.getElementById('composeTo').value = email.to || '';
+            document.getElementById('composeSubject').value = email.subject || '';
+            document.getElementById('composeBody').innerHTML = email.body || '';
+        }
+
+        function showEmailList() {
+            emailView.style.display = 'none';
+            profileView.style.display = 'none';
+            emailListView.style.display = 'block';
+            showEmailListForFolder(currentFolder);
+            selectedEmailId = null;
+        }
+
+        function showProfile() {
+            dashboardView.style.display = 'none';
+            emailListView.style.display = 'none';
+            emailView.style.display = 'none';
+            profileView.style.display = 'block';
+            profileView.classList.add('fade-in');
+            const currentUser = localStorage.getItem('current_user');
+            if (currentUser) {
+                const users = JSON.parse(localStorage.getItem('wlink_users')) || [];
+                const user = users.find(u => u.username === currentUser);
+                if (user) {
+                    document.getElementById('profileFullName').textContent = `${user.firstName} ${user.lastName}`;
+                    document.getElementById('profileUsername').textContent = user.username + '@wlink.com';
+                    const dob = new Date(user.dob);
+                    document.getElementById('profileDob').textContent = dob.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                    const sentEmails = getEmailsForFolder('sent').length;
+                    const receivedEmails = getEmailsForFolder('inbox').length;
+                    document.getElementById('profileEmailsSent').textContent = sentEmails;
+                    document.getElementById('profileEmailsReceived').textContent = receivedEmails;
+                    const profileAvatar = document.getElementById('profileAvatar');
+                    if (user.photo) {
+                        profileAvatar.innerHTML = `<img src="${user.photo}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; filter: grayscale(100%);">`;
+                    } else {
+                        profileAvatar.textContent = `${user.firstName.charAt(0).toUpperCase()}${user.lastName.charAt(0).toUpperCase()}`;
+                    }
+                }
+            }
+        }
+
+        function openCompose() {
+            composeContainer.classList.add('active');
+            composeContainer.classList.add('fade-in');
+            document.getElementById('composeTo').value = '';
+            document.getElementById('composeSubject').value = '';
+            document.getElementById('composeBody').innerHTML = '';
+            attachments = [];
+            updateAttachmentList();
+        }
+
+        function minimizeComposeWindow() {
+            composeContainer.style.display = 'none';
+            setTimeout(() => {
+                composeContainer.style.display = 'flex';
+                composeContainer.classList.remove('active');
+            }, 0);
+        }
+
+        function closeComposeWindow() {
+            composeContainer.classList.remove('active');
+        }
+
+        function updateAttachmentList() {
+            attachmentArea.innerHTML = '';
+            attachments.forEach(file => {
+                const attachment = document.createElement('span');
+                attachment.textContent = file.name;
+                attachment.className = 'attachment';
+                attachmentArea.appendChild(attachment);
+            });
+        }
+
+        function sendEmail(e) {
+            e.preventDefault();
+            emailListLoading.style.display = 'block';
+            setTimeout(() => {
+                const to = document.getElementById('composeTo').value;
+                const subject = document.getElementById('composeSubject').value;
+                const body = document.getElementById('composeBody').innerHTML;
+                const currentUser = localStorage.getItem('current_user');
+                const users = JSON.parse(localStorage.getItem('wlink_users')) || [];
+                const user = users.find(u => u.username === currentUser);
+                const recipientUsername = to.split('@')[0];
+                const recipient = users.find(u => u.username === recipientUsername);
+                if (recipient) {
+                    const sentEmail = {
+                        id: String(Date.now()),
+                        from: user ? `${user.firstName} ${user.lastName}` : 'Me',
+                        fromEmail: currentUser + '@wlink.com',
+                        to: to,
+                        toName: `${recipient.firstName} ${recipient.lastName}`,
+                        subject: subject,
+                        preview: body.replace(/<[^>]+>/g, '').substring(0, 50) + '...',
+                        time: new Date().toLocaleTimeString(),
+                        read: true,
+                        starred: false,
+                        body: body,
+                        attachments: attachments.map(file => file.name),
+                        isSent: true
+                    };
+                    const receivedEmail = {
+                        ...sentEmail,
+                        read: false,
+                        isSent: false
+                    };
+                    const sentEmails = getEmailsForFolder('sent');
+                    sentEmails.push(sentEmail);
+                    saveEmailsForFolder('sent', sentEmails);
+                    const recipientInbox = getEmailsForFolder('inbox');
+                    recipientInbox.push(receivedEmail);
+                    saveEmailsForFolder('inbox', recipientInbox);
+                    closeComposeWindow();
+                    updateBadges();
+                    if (currentFolder === 'sent') {
+                        showEmailListForFolder('sent');
+                    }
+                } else {
+                    alert('Recipient does not exist.');
+                }
+                emailListLoading.style.display = 'none';
+            }, 500);
+        }
+
+        function toggleTheme() {
+            const themes = ['light', 'dark', 'amoled'];
+            let currentThemeIndex = themes.indexOf(currentTheme);
+            currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+            currentTheme = themes[currentThemeIndex];
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('theme', currentTheme);
+        }
+
+        function refreshEmails() {
+            showEmailListForFolder(currentFolder);
+        }
+
+        function getSelectedEmails() {
+            const checkboxes = document.querySelectorAll('.email-checkbox:checked');
+            return Array.from(checkboxes).map(checkbox => checkbox.closest('.email-item').dataset.id);
+        }
+
+        function archiveEmails() {
+            emailListLoading.style.display = 'block';
+            setTimeout(() => {
+                const selectedIds = getSelectedEmails();
+                selectedIds.forEach(id => {
+                    const result = getEmailById(id);
+                    if (result) {
+                        const { email, folder } = result;
+                        if (folder !== 'archive') {
+                            const originalEmails = getEmailsForFolder(folder);
+                            const index = originalEmails.findIndex(e => e.id === id);
+                            if (index !== -1) {
+                                originalEmails.splice(index, 1);
+                                saveEmailsForFolder(folder, originalEmails);
+                            }
+                            const archiveEmails = getEmailsForFolder('archive');
+                            archiveEmails.push(email);
+                            saveEmailsForFolder('archive', archiveEmails);
+                        }
+                    }
+                });
+                showEmailListForFolder(currentFolder);
+                updateBadges();
+                emailListLoading.style.display = 'none';
+            }, 500);
+        }
+
+        function deleteEmails() {
+            emailListLoading.style.display = 'block';
+            setTimeout(() => {
+                const selectedIds = getSelectedEmails();
+                selectedIds.forEach(id => {
+                    const result = getEmailById(id);
+                    if (result) {
+                        const { email, folder } = result;
+                        if (folder !== 'trash') {
+                            const originalEmails = getEmailsForFolder(folder);
+                            const index = originalEmails.findIndex(e => e.id === id);
+                            if (index !== -1) {
+                                originalEmails.splice(index, 1);
+                                saveEmailsForFolder(folder, originalEmails);
+                            }
+                            const trashEmails = getEmailsForFolder('trash');
+                            trashEmails.push(email);
+                            saveEmailsForFolder('trash', trashEmails);
+                        }
+                    }
+                });
+                showEmailListForFolder(currentFolder);
+                updateBadges();
+                emailListLoading.style.display = 'none';
+            }, 500);
+        }
+
+        function markAsRead() {
+            emailListLoading.style.display = 'block';
+            setTimeout(() => {
+                const selectedIds = getSelectedEmails();
+                selectedIds.forEach(id => {
+                    const result = getEmailById(id);
+                    if (result) {
+                        const { email, folder } = result;
+                        email.read = true;
+                        const originalEmails = getEmailsForFolder(folder);
+                        const index = originalEmails.findIndex(e => e.id === id);
+                        if (index !== -1) {
+                            originalEmails[index].read = true;
+                            saveEmailsForFolder(folder, originalEmails);
+                        }
+                    }
+                });
+                showEmailListForFolder(currentFolder);
+                updateBadges();
+                emailListLoading.style.display = 'none';
+            }, 500);
+        }
+
+        function toggleListView() {
+            if (listViewMode === 'detailed') {
+                listViewMode = 'compact';
+                emailList.classList.add('compact-view');
+                document.getElementById('listViewBtn').innerHTML = '<i class="fas fa-list-ul"></i>';
+            } else {
+                listViewMode = 'detailed';
+                emailList.classList.remove('compact-view');
+                document.getElementById('listViewBtn').innerHTML = '<i class="fas fa-list"></i>';
+            }
+        }
+
+        function replyToEmail() {
+            if (selectedEmailId) {
+                const result = getEmailById(selectedEmailId);
+                if (result) {
+                    const { email } = result;
+                    openCompose();
+                    document.getElementById('composeTo').value = email.isSent ? email.to : email.fromEmail;
+                    document.getElementById('composeSubject').value = `Re: ${email.subject}`;
+                    document.getElementById('composeBody').innerHTML = `<br><br>---<br>${email.body}`;
+                }
+            }
+        }
+
+        function forwardEmail() {
+            if (selectedEmailId) {
+                const result = getEmailById(selectedEmailId);
+                if (result) {
+                    const { email } = result;
+                    openCompose();
+                    document.getElementById('composeSubject').value = `Fwd: ${email.subject}`;
+                    document.getElementById('composeBody').innerHTML = `<br><br>--- Forwarded message ---<br>From: ${email.from}<br>Subject: ${email.subject}<br><br>${email.body}`;
+                }
+            }
+        }
+
+        function deleteCurrentEmail() {
+            emailListLoading.style.display = 'block';
+            setTimeout(() => {
+                if (selectedEmailId) {
+                    const result = getEmailById(selectedEmailId);
+                    if (result) {
+                        const { email, folder } = result;
+                        if (folder !== 'trash') {
+                            const originalEmails = getEmailsForFolder(folder);
+                            const index = originalEmails.findIndex(e => e.id === selectedEmailId);
+                            if (index !== -1) {
+                                originalEmails.splice(index, 1);
+                                saveEmailsForFolder(folder, originalEmails);
+                            }
+                            const trashEmails = getEmailsForFolder('trash');
+                            trashEmails.push(email);
+                            saveEmailsForFolder('trash', trashEmails);
+                            showEmailList();
+                            updateBadges();
+                        }
+                    }
+                }
+                emailListLoading.style.display = 'none';
+            }, 500);
+        }
+
+        function summarizeEmail() {
+            if (selectedEmailId) {
+                const result = getEmailById(selectedEmailId);
+                if (result) {
+                    const { email } = result;
+                    const summary = email.body.replace(/<[^>]+>/g, '').substring(0, 100) + '...';
+                    summaryText.textContent = summary;
+                    summarizePopup.classList.add('active');
+                    summarizePopup.classList.add('fade-in');
+                }
+            }
+        }
+
+        function openSummarizePopup() {
+            if (selectedEmailId) {
+                const result = getEmailById(selectedEmailId);
+                if (result) {
+                    const { email } = result;
+                    const summary = email.body.replace(/<[^>]+>/g, '').substring(0, 100) + '...';
+                    summaryText.textContent = summary;
+                } else {
+                    summaryText.textContent = 'No email selected.';
+                }
+            } else {
+                summaryText.textContent = 'Please select an email to summarize.';
+            }
+            summarizePopup.classList.add('active');
+            summarizePopup.classList.add('fade-in');
+        }
+
+        function closeSummarizePopup() {
+            summarizePopup.classList.remove('active');
+        }
+
+        function copySummaryText() {
+            const text = summaryText.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Summary copied to clipboard');
+            });
+        }
+
+        function toggleVoiceRecognition() {
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.start();
+                isListening = true;
+                voiceFeatureBtn.innerHTML = '<i class="fas fa-stop"></i>';
+                voiceText.textContent = 'Listening...';
+                voicePopup.classList.add('active');
+                voicePopup.classList.add('fade-in');
+            }
+        }
+
+        function startVoiceCompose() {
+            if (isListening) {
+                recognition.stop();
+            } else {
+                if (!composeContainer.classList.contains('active')) {
+                    openCompose();
+                }
+                recognition.start();
+                isListening = true;
+                voiceComposeBtn.innerHTML = '<i class="fas fa-stop"></i>';
+                voiceText.textContent = 'Listening...';
+                voicePopup.classList.add('active');
+                voicePopup.classList.add('fade-in');
+            }
+        }
+
+        function cancelVoiceRecognition() {
+            if (isListening) {
+                recognition.stop();
+            }
+            voicePopup.classList.remove('active');
+            voiceFeatureBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            voiceComposeBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            voiceText.textContent = 'Press the microphone button to start speaking.';
+            isListening = false;
+        }
+
+        function calculateAge(dob) {
+            const birthDate = new Date(dob);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age;
+        }
+
+        function checkScheduledEmails() {
+            const now = new Date();
+            const scheduledEmails = getEmailsForFolder('scheduled');
+            scheduledEmails.forEach((email, index) => {
+                if (email.scheduleTime && new Date(email.scheduleTime) <= now) {
+                    const sentEmails = getEmailsForFolder('sent');
+                    delete email.scheduleTime;
+                    sentEmails.push(email);
+                    saveEmailsForFolder('sent', sentEmails);
+                    scheduledEmails.splice(index, 1);
+                    saveEmailsForFolder('scheduled', scheduledEmails);
+                    notifyUser(`Email sent to ${email.to}`);
+                    updateBadges();
+                }
+            });
+            const snoozedEmails = getEmailsForFolder('snoozed');
+            snoozedEmails.forEach((email, index) => {
+                if (email.snoozeTime && new Date(email.snoozeTime) <= now) {
+                    const inboxEmails = getEmailsForFolder('inbox');
+                    delete email.snoozeTime;
+                    inboxEmails.push(email);
+                    saveEmailsForFolder('inbox', inboxEmails);
+                    snoozedEmails.splice(index, 1);
+                    saveEmailsForFolder('snoozed', snoozedEmails);
+                    updateBadges();
+                }
+            });
+            const drafts = getEmailsForFolder('drafts');
+            drafts.forEach((draft, index) => {
+                if (draft.snoozeTime && new Date(draft.snoozeTime) <= now) {
+                    notifyUser(`It's time to continue composing your draft: ${draft.subject}`);
+                    delete draft.snoozeTime;
+                    drafts[index] = draft;
+                    saveEmailsForFolder('drafts', drafts);
+                    updateBadges();
+                }
+            });
+            if (currentFolder === 'scheduled' || currentFolder === 'snoozed' || currentFolder === 'drafts') {
+                showEmailListForFolder(currentFolder);
+            }
+        }
+
+        function notifyUser(message) {
+            alert(message);
+        }
+
+        if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+            recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                voiceText.textContent = transcript;
+                if (composeContainer.classList.contains('active')) {
+                    const composeBody = document.getElementById('composeBody');
+                    composeBody.innerHTML += transcript + ' ';
+                    composeBody.focus();
+                }
+            };
+
+            recognition.onerror = function(event) {
+                voiceText.textContent = 'Error: ' + event.error;
+                if (event.error === 'not-allowed') {
+                    alert('Microphone access denied. Please allow microphone permissions in your browser settings.');
+                }
+            };
+
+            recognition.onend = function() {
+                isListening = false;
+                voiceFeatureBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                voiceComposeBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            };
+        } else {
+            voiceFeatureBtn.disabled = true;
+            voiceFeatureBtn.title = 'Speech recognition not supported';
+            voiceComposeBtn.disabled = true;
+            voiceComposeBtn.title = 'Speech recognition not supported';
+        }
+
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const terms = document.getElementById('terms').checked;
+
+            if (!firstName) return alert('First Name is required.');
+            if (!lastName) return alert('Last Name is required.');
+            if (!username) return alert('Username is required.');
+            if (!/^[a-zA-Z0-9_]+$/.test(username)) return alert('Username can only contain letters, numbers, and underscores.');
+            let users = JSON.parse(localStorage.getItem('wlink_users')) || [];
+            if (users.some(user => user.username === username)) return alert('Username already exists.');
+            if (password.length < 8) return alert('Password must be at least 8 characters long.');
+            if (password !== confirmPassword) return alert('Passwords do not match.');
+            if (!terms) return alert('You must agree to the terms.');
+
+            tempUserData = { firstName, lastName, username, password };
+            signupContainer.style.display = 'none';
+            dobContainer.style.display = 'block';
+        });
+
+        document.getElementById('dobForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const dob = document.getElementById('dob').value;
+            if (!dob) return alert('Date of Birth is required.');
+            const birthDate = new Date(dob);
+            const today = new Date();
+            if (birthDate >= today) return alert('Date of Birth must be in the past.');
+            const age = calculateAge(dob);
+            if (age < 13) return alert('You must be at least 13 years old.');
+
+            const newUser = { ...tempUserData, dob };
+            let users = JSON.parse(localStorage.getItem('wlink_users')) || [];
+            users.push(newUser);
+            localStorage.setItem('wlink_users', JSON.stringify(users));
+            localStorage.setItem('current_user', newUser.username);
+
+            dobContainer.style.display = 'none';
+            header.style.display = 'flex';
+            mainContent.style.display = 'block';
+            sidebar.style.display = 'block';
+            userAvatar.textContent = newUser.firstName.charAt(0).toUpperCase() + newUser.lastName.charAt(0).toUpperCase();
+            initializeEmailView();
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const users = JSON.parse(localStorage.getItem('wlink_users')) || [];
+            const user = users.find(user => user.username === username && user.password === password);
+            if (user) {
+                localStorage.setItem('current_user', username);
+                loginContainer.style.display = 'none';
+                header.style.display = 'flex';
+                mainContent.style.display = 'block';
+                sidebar.style.display = 'block';
+                const firstLetter = user.firstName.charAt(0).toUpperCase() + user.lastName.charAt(0).toUpperCase();
+                userAvatar.textContent = firstLetter;
+                if (user.photo) {
+                    userAvatar.innerHTML = `<img src="${user.photo}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; filter: grayscale(100%);">`;
+                }
+                initializeEmailView();
+            } else {
+                alert('Invalid username or password.');
+            }
+        });
+
+        switchToLogin.addEventListener('click', function(e) {
+            e.preventDefault();
+            signupContainer.style.display = 'none';
+            dobContainer.style.display = 'none';
+            loginContainer.style.display = 'block';
+        });
+
+        switchToSignup.addEventListener('click', function(e) {
+            e.preventDefault();
+            loginContainer.style.display = 'none';
+            signupContainer.style.display = 'block';
+        });
+
+        userAvatar.addEventListener('click', function() {
+            const currentUser = localStorage.getItem('current_user');
+            if (currentUser) {
+                const users = JSON.parse(localStorage.getItem('wlink_users')) || [];
+                const user = users.find(u => u.username === currentUser);
+                if (user) {
+                    document.getElementById('accountFullName').textContent = `${user.firstName} ${user.lastName}`;
+                    document.getElementById('accountUsername').textContent = user.username + '@wlink.com';
+                    const dob = new Date(user.dob);
+                    document.getElementById('accountDob').textContent = dob.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                    const sentEmails = getEmailsForFolder('sent').length;
+                    const receivedEmails = getEmailsForFolder('inbox').length;
+                    document.getElementById('emailsSent').textContent = sentEmails;
+                    document.getElementById('emailsReceived').textContent = receivedEmails;
+                    if (user.photo) {
+                        document.getElementById('profilePicture').src = user.photo;
+                        document.getElementById('profilePicture').style.display = 'block';
+                        document.getElementById('profileLetter').style.display = 'none';
+                    } else {
+                        document.getElementById('profileLetter').textContent = user.firstName.charAt(0).toUpperCase() + user.lastName.charAt(0).toUpperCase();
+                        document.getElementById('profileLetter').style.display = 'flex';
+                        document.getElementById('profilePicture').style.display = 'none';
+                    }
+                    accountPopup.classList.add('active');
+                    accountPopup.classList.add('fade-in');
+                }
+            }
+        });
+
+        document.getElementById('closeAccountPopup').addEventListener('click', function() {
+            accountPopup.classList.remove('active');
+        });
+
+        document.getElementById('logoutFromPopup').addEventListener('click', function() {
+            localStorage.removeItem('current_user');
+            mainContent.style.display = 'none';
+            sidebar.style.display = 'none';
+            header.style.display = 'none';
+            signupContainer.style.display = 'block';
+            loginContainer.style.display = 'none';
+            userAvatar.textContent = 'U';
+            accountPopup.classList.remove('active');
+        });
+
+        snoozeBtn.addEventListener('click', function() {
+            if (selectedEmailId) {
+                snoozePopup.classList.add('active');
+                snoozePopup.classList.add('fade-in');
+            }
+        });
+
+        cancelSnooze.addEventListener('click', function() {
+            snoozePopup.classList.remove('active');
+        });
+
+        applySnooze.addEventListener('click', function() {
+            const snoozeTime = document.getElementById('snoozeTime').value;
+            if (snoozeTime) {
+                const snoozeDate = new Date(snoozeTime);
+                if (snoozeDate > new Date()) {
+                    const result = getEmailById(selectedEmailId);
+                    if (result) {
+                        const { email, folder } = result;
+                        email.snoozeTime = snoozeDate.toISOString();
+                        const snoozedEmails = getEmailsForFolder('snoozed');
+                        snoozedEmails.push(email);
+                        saveEmailsForFolder('snoozed', snoozedEmails);
+                        const originalEmails = getEmailsForFolder(folder);
+                        const index = originalEmails.findIndex(e => e.id === email.id);
+                        if (index !== -1) {
+                            originalEmails.splice(index, 1);
+                            saveEmailsForFolder(folder, originalEmails);
+                        }
+                        snoozePopup.classList.remove('active');
+                        showEmailList();
+                        updateBadges();
+                    }
+                } else {
+                    alert('Please select a future time.');
+                }
+            } else {
+                alert('Please select a time.');
+            }
+        });
+
+        scheduleSendBtn.addEventListener('click', function() {
+            scheduleSendPopup.classList.add('active');
+            scheduleSendPopup.classList.add('fade-in');
+        });
+
+        cancelSchedule.addEventListener('click', function() {
+            scheduleSendPopup.classList.remove('active');
+        });
+
+        applySchedule.addEventListener('click', function() {
+            const scheduleTime = document.getElementById('scheduleTime').value;
+            if (scheduleTime) {
+                const scheduleDate = new Date(scheduleTime);
+                if (scheduleDate > new Date()) {
+                    const to = document.getElementById('composeTo').value;
+                    const subject = document.getElementById('composeSubject').value;
+                    const body = document.getElementById('composeBody').innerHTML;
+                    const currentUser = localStorage.getItem('current_user');
+                    const users = JSON.parse(localStorage.getItem('wlink_users')) || [];
+                    const user = users.find(u => u.username === currentUser);
+                    const recipientUsername = to.split('@')[0];
+                    const recipient = users.find(u => u.username === recipientUsername);
+                    if (recipient) {
+                        const newEmail = {
+                            id: String(Date.now()),
+                            from: user ? `${user.firstName} ${user.lastName}` : 'Me',
+                            fromEmail: currentUser + '@wlink.com',
+                            to: to,
+                            toName: `${recipient.firstName} ${recipient.lastName}`,
+                            subject: subject,
+                            preview: body.replace(/<[^>]+>/g, '').substring(0, 50) + '...',
+                            time: new Date().toLocaleTimeString(),
+                            read: true,
+                            starred: false,
+                            body: body,
+                            attachments: attachments.map(file => file.name),
+                            scheduleTime: scheduleDate.toISOString(),
+                            isSent: true
+                        };
+                        const scheduledEmails = getEmailsForFolder('scheduled');
+                        scheduledEmails.push(newEmail);
+                        saveEmailsForFolder('scheduled', scheduledEmails);
+                        closeComposeWindow();
+                        scheduleSendPopup.classList.remove('active');
+                        updateBadges();
+                        if (currentFolder === 'scheduled') {
+                            showEmailListForFolder('scheduled');
+                        }
+                    } else {
+                        alert('Recipient does not exist.');
+                    }
+                } else {
+                    alert('Please select a future time.');
+                }
+            } else {
+                alert('Please select a time.');
+            }
+        });
+
+        snoozeComposeBtn.addEventListener('click', function() {
+            snoozeComposePopup.classList.add('active');
+            snoozeComposePopup.classList.add('fade-in');
+        });
+
+        cancelSnoozeCompose.addEventListener('click', function() {
+            snoozeComposePopup.classList.remove('active');
+        });
+
+        applySnoozeCompose.addEventListener('click', function() {
+            const snoozeTime = document.getElementById('snoozeComposeTime').value;
+            if (snoozeTime) {
+                const snoozeDate = new Date(snoozeTime);
+                if (snoozeDate > new Date()) {
+                    const to = document.getElementById('composeTo').value;
+                    const subject = document.getElementById('composeSubject').value;
+                    const body = document.getElementById('composeBody').innerHTML;
+                    const currentUser = localStorage.getItem('current_user');
+                    const users = JSON.parse(localStorage.getItem('wlink_users')) || [];
+                    const user = users.find(u => u.username === currentUser);
+                    const newDraft = {
+                        id: String(Date.now()),
+                        from: user ? `${user.firstName} ${user.lastName}` : 'Me',
+                        fromEmail: currentUser + '@wlink.com',
+                        to: to,
+                        subject: subject,
+                        preview: body.replace(/<[^>]+>/g, '').substring(0, 50) + '...',
+                        time: new Date().toLocaleTimeString(),
+                        read: true,
+                        starred: false,
+                        body: body,
+                        attachments: attachments.map(file => file.name),
+                        snoozeTime: snoozeDate.toISOString()
+                    };
+                    const drafts = getEmailsForFolder('drafts');
+                    drafts.push(newDraft);
+                    saveEmailsForFolder('drafts', drafts);
+                    closeComposeWindow();
+                    snoozeComposePopup.classList.remove('active');
+                    updateBadges();
+                    if (currentFolder === 'drafts') {
+                        showEmailListForFolder('drafts');
+                    }
+                } else {
+                    alert('Please select a future time.');
+                }
+            } else {
+                alert('Please select a time.');
+            }
+        });
+
+        function generateInvitationLink() {
+            return "https://karthikkalki09.github.io/wlink/?invite=true";
+        }
+
+        inviteLink.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const link = generateInvitationLink();
+            if ('contacts' in navigator && 'select' in navigator.contacts) {
+                try {
+                    const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: true });
+                    if (contacts.length > 0) {
+                        const contactsList = document.getElementById('contactsList');
+                        contactsList.innerHTML = '';
+                        contacts.forEach(contact => {
+                            if (contact.tel && contact.tel.length > 0) {
+                                const div = document.createElement('div');
+                                div.innerHTML = `
+                                    <input type="checkbox" checked data-phone="${contact.tel[0]}">
+                                    ${contact.name[0]} - ${contact.tel[0]}
+                                `;
+                                contactsList.appendChild(div);
+                            }
+                        });
+                        invitePopup.classList.add('active');
+                        invitePopup.classList.add('fade-in');
+                    }
+                } catch (error) {
+                    alert('Failed to access contacts: ' + error.message);
+                }
+            } else {
+                alert('Share this link: ' + link);
+            }
+        });
+
+        sendInvite.addEventListener('click', function() {
+            const checkedBoxes = document.querySelectorAll('#contactsList input[type="checkbox"]:checked');
+            const link = generateInvitationLink();
+            checkedBoxes.forEach(checkbox => {
+                const phone = checkbox.dataset.phone;
+                const message = encodeURIComponent(`Join me on WLink! Sign up at ${link}`);
+                window.open(`sms:${phone}?body=${message}`, '_blank');
+            });
+            invitePopup.classList.remove('active');
+            document.getElementById('contactsList').innerHTML = '';
+        });
+
+        cancelInvite.addEventListener('click', function() {
+            invitePopup.classList.remove('active');
+            document.getElementById('contactsList').innerHTML = '';
+        });
+
+        sendVoice.addEventListener('click', function() {
+            const transcript = voiceText.textContent;
+            if (transcript && transcript !== 'Listening...' && transcript !== 'Press the microphone button to start speaking.') {
+                const recipient = prompt('Enter the recipient\'s email address:');
+                if (recipient) {
+                    emailListLoading.style.display = 'block';
+                    setTimeout(() => {
+                        const currentUser = localStorage.getItem('current_user');
+                        const users = JSON.parse(localStorage.getItem('wlink_users')) || [];
+                        const user = users.find(u => u.username === currentUser);
+                        const recipientUsername = recipient.split('@')[0];
+                        const recipientUser = users.find(u => u.username === recipientUsername);
+                        if (recipientUser) {
+                            const sentEmail = {
+                                id: String(Date.now()),
+                                from: user ? `${user.firstName} ${user.lastName}` : 'Me',
+                                fromEmail: currentUser + '@wlink.com',
+                                to: recipient,
+                                toName: `${recipientUser.firstName} ${recipientUser.lastName}`,
+                                subject: 'Voice Email',
+                                preview: transcript.substring(0, 50) + '...',
+                                time: new Date().toLocaleTimeString(),
+                                read: true,
+                                starred: false,
+                                body: transcript,
+                                attachments: [],
+                                isSent: true
+                            };
+                            const receivedEmail = {
+                                ...sentEmail,
+                                read: false,
+                                isSent: false
+                            };
+                            const sentEmails = getEmailsForFolder('sent');
+                            sentEmails.push(sentEmail);
+                            saveEmailsForFolder('sent', sentEmails);
+                            const recipientInbox = getEmailsForFolder('inbox');
+                            recipientInbox.push(receivedEmail);
+                            saveEmailsForFolder('inbox', recipientInbox);
+                            cancelVoiceRecognition();
+                            updateBadges();
+                            if (currentFolder === 'sent') {
+                                showEmailListForFolder('sent');
+                            }
+                        } else {
+                            alert('Recipient does not exist.');
+                        }
+                        emailListLoading.style.display = 'none';
+                    }, 500);
+                }
+            } else {
+                alert('No valid voice input to send.');
+            }
+        });
+
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isInvite = urlParams.get('invite') === 'true';
+            if (isInvite) {
+                alert('Welcome! Please sign up or log in.');
+                signupContainer.style.display = 'block';
+                loginContainer.style.display = 'none';
+                header.style.display = 'none';
+                mainContent.style.display = 'none';
+                sidebar.style.display = 'none';
+            } else {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme) {
+                    currentTheme = savedTheme;
+                    document.documentElement.setAttribute('data-theme', savedTheme);
+                }
+                const currentUser = localStorage.getItem('current_user');
+                if (currentUser) {
+                    signupContainer.style.display = 'none';
+                    dobContainer.style.display = 'none';
+                    loginContainer.style.display = 'none';
+                    header.style.display = 'flex';
+                    mainContent.style.display = 'block';
+                    sidebar.style.display = 'block';
+                    const users = JSON.parse(localStorage.getItem('wlink_users')) || [];
+                    const user = users.find(u => u.username === currentUser);
+                    if (user) {
+                        userAvatar.textContent = user.firstName.charAt(0).toUpperCase() + user.lastName.charAt(0).toUpperCase();
+                        if (user.photo) {
+                            userAvatar.innerHTML = `<img src="${user.photo}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; filter: grayscale(100%);">`;
+                        }
+                        initializeEmailView();
+                    }
+                } else {
+                    signupContainer.style.display = 'block';
+                    dobContainer.style.display = 'none';
+                    loginContainer.style.display = 'none';
+                    header.style.display = 'none';
+                    mainContent.style.display = 'none';
+                    sidebar.style.display = 'none';
+                }
+            }
+        });
+
+        function initializeEmailView() {
+            showEmailListForFolder('inbox');
+            document.querySelector('.sidebar-menu a[data-folder="inbox"]').classList.add('active');
+            updateBadges();
+            setInterval(checkScheduledEmails, 60000);
+            checkScheduledEmails();
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!accountPopup.contains(e.target) && !userAvatar.contains(e.target)) {
+                accountPopup.classList.remove('active');
+            }
+            if (!summarizePopup.contains(e.target) && !summarizeFeatureBtn.contains(e.target) && !summarizeBtn.contains(e.target)) {
+                summarizePopup.classList.remove('active');
+            }
+            if (!voicePopup.contains(e.target) && !voiceFeatureBtn.contains(e.target) && !voiceComposeBtn.contains(e.target)) {
+                voicePopup.classList.remove('active');
+            }
+            if (!snoozePopup.contains(e.target) && !snoozeBtn.contains(e.target)) {
+                snoozePopup.classList.remove('active');
+            }
+            if (!scheduleSendPopup.contains(e.target) && !scheduleSendBtn.contains(e.target)) {
+                scheduleSendPopup.classList.remove('active');
+            }
+            if (!snoozeComposePopup.contains(e.target) && !snoozeComposeBtn.contains(e.target)) {
+                snoozeComposePopup.classList.remove('active');
+            }
+            if (!invitePopup.contains(e.target) && !inviteLink.contains(e.target)) {
+                invitePopup.classList.remove('active');
+                document.getElementById('contactsList').innerHTML = '';
+            }
+        });
+
+        menuToggle.addEventListener('click', toggleSidebar);
+        themeToggle.addEventListener('click', toggleTheme);
+        composeBtn.addEventListener('click', openCompose);
+        closeCompose.addEventListener('click', closeComposeWindow);
+        minimizeCompose.addEventListener('click', minimizeComposeWindow);
+        composeForm.addEventListener('submit', sendEmail);
+        backToDashboard.addEventListener('click', showDashboard);
+        document.getElementById('refreshBtn').addEventListener('click', refreshEmails);
+        document.getElementById('archiveBtn').addEventListener('click', archiveEmails);
+        document.getElementById('deleteBtn').addEventListener('click', deleteEmails);
+        document.getElementById('markAsReadBtn').addEventListener('click', markAsRead);
+        document.getElementById('listViewBtn').addEventListener('click', toggleListView);
+        backToList.addEventListener('click', showEmailList);
+        document.getElementById('replyBtn').addEventListener('click', replyToEmail);
+        document.getElementById('forwardBtn').addEventListener('click', forwardEmail);
+        document.getElementById('deleteEmailBtn').addEventListener('click', deleteCurrentEmail);
+        summarizeBtn.addEventListener('click', summarizeEmail);
+        summarizeFeatureBtn.addEventListener('click', openSummarizePopup);
+        closeSummary.addEventListener('click', closeSummarizePopup);
+        copySummary.addEventListener('click', copySummaryText);
+        voiceFeatureBtn.addEventListener('click', toggleVoiceRecognition);
+        voiceComposeBtn.addEventListener('click', startVoiceCompose);
+        cancelVoice.addEventListener('click', cancelVoiceRecognition);
+        viewProfileBtn.addEventListener('click', function() {
+            accountPopup.classList.remove('active');
+            showProfile();
+        });
+        backFromProfile.addEventListener('click', function() {
+            profileView.style.display = 'none';
+            showDashboard();
+        });
+
+        document.getElementById('attachFile').addEventListener('click', function() {
+            insertMode = 'file';
+            fileInput.accept = '*';
+            fileInput.click();
+        });
+
+        document.getElementById('insertPhoto').addEventListener('click', function() {
+            insertMode = 'photo';
+            fileInput.accept = 'image/*';
+            fileInput.click();
+        });
+
+        document.getElementById('insertLink').addEventListener('click', function() {
+            const url = prompt('Enter the URL:');
+            if (url) {
+                const text = prompt('Enter the link text:');
+                const linkHtml = `<a href="${url}">${text || url}</a>`;
+                document.getElementById('composeBody').focus();
+                document.execCommand('insertHTML', false, linkHtml);
+            }
+        });
+
+        fileInput.addEventListener('change', function() {
+            const files = this.files;
+            if (insertMode === 'photo') {
+                Array.from(files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const imgHtml = `<img src="${e.target.result}" alt="${file.name}" style="max-width: 100%;">`;
+                        document.getElementById('composeBody').focus();
+                        document.execCommand('insertHTML', false, imgHtml);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            } else {
+                attachments = attachments.concat(Array.from(files));
+                updateAttachmentList();
+            }
+            this.value = '';
+        });
+
+        document.querySelectorAll('.sidebar-menu a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const folder = this.dataset.folder;
+                if (folder) {
+                    e.preventDefault();
+                    showEmailListForFolder(folder);
+                    document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+                    this.classList.add('active');
+                    if (window.innerWidth > 992) {
+                        sidebar.classList.add('hidden');
+                        mainContent.classList.add('expanded');
+                    } else {
+                        sidebar.classList.remove('open');
+                    }
+                }
+            });
+        });
+
+        searchInput.addEventListener('input', function() {
+            emailListLoading.style.display = 'block';
+            setTimeout(() => {
+                const searchTerm = this.value.toLowerCase();
+                const emails = getEmailsForFolder(currentFolder);
+                const filteredEmails = emails.filter(email =>
+                    email.from.toLowerCase().includes(searchTerm) ||
+                    (email.toName && email.toName.toLowerCase().includes(searchTerm)) ||
+                    email.subject.toLowerCase().includes(searchTerm) ||
+                    email.preview.toLowerCase().includes(searchTerm)
+                );
+                renderEmailList(filteredEmails);
+                emailListLoading.style.display = 'none';
+            }, 300);
+        });
+
+        emailList.addEventListener('click', function(e) {
+            if (e.target.classList.contains('email-star')) {
+                const emailItem = e.target.closest('.email-item');
+                const emailId = emailItem.dataset.id;
+                const result = getEmailById(emailId);
+                if (result) {
+                    const { email, folder } = result;
+                    email.starred = !email.starred;
+                    if (email.starred) {
+                        e.target.classList.remove('far');
+                        e.target.classList.add('fas');
+                    } else {
+                        e.target.classList.remove('fas');
+                        e.target.classList.add('far');
+                    }
+                    const originalEmails = getEmailsForFolder(folder);
+                    const index = originalEmails.findIndex(e => e.id === email.id);
+                    if (index !== -1) {
+                        originalEmails[index].starred = email.starred;
+                        saveEmailsForFolder(folder, originalEmails);
+                    }
+                    updateBadges();
+                    if (currentFolder === 'starred') {
+                        showEmailListForFolder('starred');
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
